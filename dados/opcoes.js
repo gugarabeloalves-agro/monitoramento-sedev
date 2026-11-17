@@ -16,6 +16,14 @@ window.APP_OPCOES = {
     { k: "deficiencia", t: "Deficiência nutricional", ic: "🧪", sug: ["N", "P", "K", "S", "Mn", "Mo", "B", "Zn", "Ca", "Mg"] },
     { k: "outros",      t: "Outros",                  ic: "⚠️", sug: ["estande falho", "encharcamento", "falha de irrigação", "fitotoxidez", "granizo"] }
   ],
+  // Indicação de aplicação por pivô (preenchida na vistoria)
+  aplicacoes: [
+    { k: "fungicida",      t: "Fungicida",               ic: "🍄" },
+    { k: "inseticida",     t: "Inseticida",              ic: "🐛" },
+    { k: "herbicida",      t: "Herbicida",               ic: "🌿" },
+    { k: "microbiologico", t: "Microbiológicos",         ic: "🦠" },
+    { k: "nutricao",       t: "Macro e micronutrientes", ic: "🧪" }
+  ],
   palhadas: ["Palhada de trigo", "Soqueira de algodão", "Palhada de milho", "Pousio"],
   status: {
     ok:       { t: "OK",       ic: "🟢" },

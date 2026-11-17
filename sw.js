@@ -1,9 +1,9 @@
 // Service worker: deixa o app abrir sem sinal e guarda as fotos já vistas.
 // Ao mudar arquivos do app, aumente a VERSAO para os celulares pegarem a atualização.
-const VERSAO = "mon-v1";
+const VERSAO = "mon-v2";
 const CDN = "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.min.js";
 const BASE = ["./", "index.html", "css/app.css", "js/app.js", "js/local.js", "config.js",
-  "dados/pivos.js", "dados/mapa.js", "dados/opcoes.js", "manifest.webmanifest",
+  "dados/pivos.js", "dados/mapa.js", "dados/opcoes.js", "dados/site.js", "manifest.webmanifest",
   "icons/icon-192.png", "icons/icon-512.png", "icons/apple-touch-icon.png", CDN];
 
 self.addEventListener("install", (e) => {
