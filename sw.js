@@ -1,10 +1,11 @@
 // Service worker: deixa o app abrir sem sinal e guarda as fotos já vistas.
 // Ao mudar arquivos do app, aumente a VERSAO para os celulares pegarem a atualização.
-const VERSAO = "mon-v2";
+const VERSAO = "mon-v3";
 const CDN = "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.min.js";
+const LEAFLET = ["https://unpkg.com/leaflet@1.9.4/dist/leaflet.js", "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"];
 const BASE = ["./", "index.html", "css/app.css", "js/app.js", "js/local.js", "config.js",
   "dados/pivos.js", "dados/mapa.js", "dados/opcoes.js", "dados/site.js", "manifest.webmanifest",
-  "icons/icon-192.png", "icons/icon-512.png", "icons/apple-touch-icon.png", CDN];
+  "icons/icon-192.png", "icons/icon-512.png", "icons/apple-touch-icon.png", CDN].concat(LEAFLET);
 
 self.addEventListener("install", (e) => {
   e.waitUntil(caches.open(VERSAO).then((c) => c.addAll(BASE)).then(() => self.skipWaiting()));
@@ -34,8 +35,8 @@ self.addEventListener("fetch", (e) => {
     }));
     return;
   }
-  // biblioteca do Supabase: do cache
-  if (req.url === CDN) {
+  // bibliotecas (Supabase e Leaflet): do cache. As imagens de satélite (Esri) vão direto para a rede.
+  if (req.url === CDN || LEAFLET.includes(req.url)) {
     e.respondWith(caches.match(req).then((hit) => hit || fetch(req)));
     return;
   }

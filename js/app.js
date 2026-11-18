@@ -521,6 +521,7 @@
         const sem = segunda(v.data);
         if (sem !== semAnt) { corpo += '<h4 class="semana">Semana ' + rotuloSemana(sem) + "</h4>"; semAnt = sem; }
         const meu = S.user && v.autor === S.user.id;
+        const pts = v._fotos.map((f, i) => pontoDeFoto(f, i + 1, "Foto " + (i + 1), f.observacao)).filter(Boolean);
         corpo += '<article class="vist' + (v._pendente ? " pendente" : "") + '">' +
           '<div class="v-l1"><b>' + fmtAno(v.data) + "</b>" + (v.estadio ? ' <span class="estadio">' + esc(v.estadio) + "</span>" : "") + (em ? ' <span class="dae">' + dias(em, v.data) + " DAE</span>" : "") + " " + chipStatus(v.status) + "</div>" +
           '<div class="v-aut">por ' + esc(nomeAutor(v.autor)) + (foiEditada(v) ? " · editada em " + fmt(v.atualizado_em.slice(0, 10)) : "") +
@@ -528,9 +529,12 @@
           '<div class="pbs">' + (problemas(v.checklist) || '<span class="pb pb-ausente">Nada relevante marcado</span>') + "</div>" +
           (v.anamnese ? '<p class="anam">' + esc(v.anamnese).replace(/\n/g, "<br>") + "</p>" : "") +
           aplHTML(v.aplicacao, true) +
-          (v._fotos.length ? '<div class="thumbs">' + v._fotos.map((f) =>
-            '<figure data-act="foto" data-obs="' + esc(f.observacao || "") + '" data-item="' + esc(f.item || "") + '">' + imgFoto(f, true) + (f.observacao ? "<figcaption>" + esc(f.observacao) + "</figcaption>" : "") + "</figure>"
+          (v._fotos.length ? '<div class="thumbs">' + v._fotos.map((f, i) =>
+            '<figure data-act="foto" data-obs="' + esc(f.observacao || "") + '" data-item="' + esc(f.item || "") + '">' + imgFoto(f, true) +
+            (pts.length ? '<span class="fnum' + (temGps(f) ? "" : " sem") + '" title="' + (temGps(f) ? "Ponto " + (i + 1) + " no mapa" : "sem GPS") + '">' + (i + 1) + "</span>" : "") +
+            (f.observacao ? "<figcaption>" + esc(f.observacao) + "</figcaption>" : "") + "</figure>"
           ).join("") + "</div>" : "") +
+          (pts.length ? '<button class="btn sec mini mapa-btn" data-act="mapa">Ver fotos no mapa (' + pts.length + (pts.length > 1 ? " pontos" : " ponto") + ")</button>" + caixaMapa(pts, true) : "") +
           (meu ? '<div class="v-acoes"><button class="btn sec mini" data-act="editar" data-cid="' + esc(v.client_id) + '">✏️ Editar</button><button class="link perigo" data-act="apagar" data-cid="' + esc(v.client_id) + '">Apagar</button></div>' : "") +
           "</article>";
       });
@@ -755,53 +759,138 @@
       if (!lista) return { w, vazio: true };
       const ult = lista[0], cur = termos(ult.checklist);
       const sumiu = prev ? Object.entries(prev).filter(([k]) => !cur[k]).map(([k, t]) => Object.assign({ k }, t)) : [];
+      const aplV = lista.find((x) => aplPreenchida(x.aplicacao)) || null;
       const l = {
         w, lista, ult, cur, sumiu, marcas: marcar(cur, prev, primeiro, w),
         estadio: (lista.find((x) => x.estadio) || {}).estadio || "",
-        apl: (lista.find((x) => aplPreenchida(x.aplicacao)) || {}).aplicacao || null
+        aplV, apl: aplV ? aplV.aplicacao : null
       };
       prev = cur;
       return l;
     });
     return { linhas, primeiro, temAlgo: vs.length > 0 };
   }
+  // Relatório (tela + PDF) — sem emojis: status = quadradinho colorido + palavra.
   const nivS = (n) => (O.niveis.find((x) => x.k === n) || {}).s || "";
-  const nomeProb = (m) => m.it.ic + " " + esc(m.termo || m.it.t);
-  const tendTxt = { "★": "novo", "▲": "piorou", "▼": "melhorou", "=": "igual" };
+  const nomeT = (m) => esc(m.termo || m.it.t);
+  const sqSt = (st) => (st && O.status[st] ? '<span class="sq sq-' + st + '"></span>' + O.status[st].t : "—");
+  const marcaTxt = (t) => (t === "★" ? " <b>NOVO</b>" : t === "▲" || t === "▼" ? " " + t : "");
+  const probCurto = (m) => nomeT(m) + " (" + nivS(m.nivel) + ")" + marcaTxt(m.tend);
+  const variacaoTxt = { "★": "<b>NOVO</b>", "▲": "▲ piorou", "▼": "▼ melhorou", "=": "= igual" };
+  const hhmm = (d) => pad(d.getHours()) + ":" + pad(d.getMinutes());
+  const dataHora = (d) => fmtAno(iso(d)) + " " + hhmm(d);
+  const ordemNum = (arr) => arr.slice().sort((a, b) => a.localeCompare(b, "pt-BR", { numeric: true }));
+  function probsDeVist(v) { // resumo de uma vistoria (linhas "outras vistorias na semana")
+    const t = Object.values(termos(v.checklist));
+    return t.length ? t.map((x) => esc(x.termo || x.it.t) + " (" + nivS(x.nivel) + ")").join(", ") : "nada relevante marcado";
+  }
+  function gpsHTML(f, n) {
+    const g = temGps(f);
+    return g ? "Ponto " + n + " · " + g.lat.toFixed(5) + ", " + g.lng.toFixed(5) : '<span class="rf-semgps">sem GPS</span>';
+  }
+  function motivoCurto(L) { // 1 linha para a caixa "Precisam de mais atenção"
+    const ms = L.marcas.slice().sort((a, b) => NIV[b.nivel] - NIV[a.nivel]);
+    const fortes = ms.filter((m) => NIV[m.nivel] >= 2);
+    const usar = fortes.length ? fortes : ms;
+    let t = usar.length ? usar.slice(0, 3).map(probCurto).join(", ") + (usar.length > 3 ? " e mais " + (usar.length - 3) : "") : "status marcado sem problema no checklist";
+    const sim = L.aplV ? aplSim(L.aplV.aplicacao) : [];
+    if (sim.length) t += " · indicado: " + sim.map((a) => esc(a.t)).join(", ");
+    return t;
+  }
+  function gravidade(L) {
+    const ns = L.marcas.map((m) => NIV[m.nivel]);
+    return [L.ult.status === "problema" ? 2 : 1, Math.max(0, ...ns), ns.filter((n) => n >= 2).length, ns.length];
+  }
 
-  function blocoRelatorio(p, h, sel) {
-    const pv = S.pivos[p], s = siteDe(p), L = h.linhas[h.linhas.length - 1];
-    const pal = palhadaDe(p);
-    let x = '<section class="rel-pivo"><div class="rel-cab"><span class="bolinha" style="background:' + corVar(pv.variedade) + '"></span><b>' + p + "</b> · " + esc(pv.variedade) +
-      (s.gm ? " · GM " + esc(s.gm) : "") + " · " + esc(pal || "palhada não informada") + " · " + (pv.area ? mil(pv.area) + " ha" : "") + "</div>" +
-      '<div class="rel-sub">Plantio ' + fmt(pv.plantio) + " · emergência " + fmt(s.emergencia) + " · pl/ha planejadas " + mil(s.estandePlanejado) + " · estande final " + estandeTxt(s) + "</div>";
-    if (!L || L.vazio) x += '<p class="rel-sem">— sem vistoria nesta semana —</p>';
-    else {
-      L.lista.forEach((v, i) => {
-        const dae = s.emergencia ? dias(s.emergencia, v.data) + " DAE" : "";
-        x += '<div class="rel-vist"><div class="v-l1"><b>' + fmtAno(v.data) + "</b>" + (v.estadio ? ' <span class="estadio">' + esc(v.estadio) + "</span>" : "") + (dae ? ' <span class="dae">' + dae + "</span>" : "") + " " + chipStatus(v.status) +
-          ' <span class="v-aut">por ' + esc(nomeAutor(v.autor)) + (v._pendente ? " · ⏳ ainda no celular" : "") + (foiEditada(v) ? " · editada" : "") + "</span></div>";
-        if (i === 0) {
-          x += '<div class="pbs">' + (L.marcas.length ? L.marcas.map((m) => '<span class="pb pb-' + m.nivel + '">' + nomeProb(m) + " (" + nivS(m.nivel) + ") " +
-            '<b class="tend" title="' + tendTxt[m.tend] + '">' + m.tend + "</b>" + (m.desde ? ' <small>desde ' + fmt(m.desde.data) + (m.tend === "★" ? " · " + esc(nomeAutor(m.desde.autor)) : "") + "</small>" : "") + "</span>").join("") : '<span class="pb pb-ausente">Nada relevante marcado</span>') + "</div>";
-          if (L.sumiu.length) x += '<p class="nota">✓ Não visto mais nesta semana: ' + L.sumiu.map(nomeProb).join(", ") + "</p>";
-        } else x += '<div class="pbs">' + (problemas(v.checklist) || '<span class="pb pb-ausente">Nada relevante marcado</span>') + "</div>";
-        if (v.anamnese) x += '<p class="anam">' + esc(v.anamnese).replace(/\n/g, "<br>") + "</p>";
-        x += aplHTML(v.aplicacao);
-        x += "</div>";
-      });
-      const fotos = [].concat(...L.lista.map((v) => v._fotos)).slice(0, 6);
-      if (fotos.length) x += '<div class="thumbs rel-fotos">' + fotos.map((f) => "<figure>" + imgFoto(f, false) + (f.observacao ? "<figcaption>" + esc(f.observacao) + "</figcaption>" : "") + "</figure>").join("") + "</div>";
-    }
-    // histórico acumulado (uma linha por semana)
-    x += '<div class="tab-rol"><table class="tab-hist"><thead><tr><th>Semana</th><th>Estádio</th><th>Problemas</th><th>Aplic.</th><th>Status</th><th>Autor</th></tr></thead><tbody>' +
+  function fichaPivo(p, L) {
+    const pv = S.pivos[p], s = siteDe(p), pal = palhadaDe(p);
+    const ref = L && !L.vazio ? L.ult.data : hoje();
+    const dae = s.emergencia ? dias(s.emergencia, ref) : null;
+    const lin = (k, v) => "<tr><td>" + k + "</td><td>" + v + "</td></tr>";
+    return '<table class="rel-tab rel-ficha"><thead><tr><th>Item</th><th>Valor</th></tr></thead><tbody>' +
+      lin("Variedade", '<span class="bolinha" style="background:' + corVar(pv.variedade) + '"></span> ' + esc(pv.variedade)) +
+      lin("Grupo de maturação", esc(s.gm || "—")) +
+      lin("Área", pv.area ? mil(pv.area) + " ha" : "—") +
+      lin("Palhada", esc(pal || "não informada")) +
+      lin("Plantio", fmtAno(pv.plantio)) +
+      lin("Emergência / DAE", fmtAno(s.emergencia) + (dae != null ? " · " + dae + " DAE " + (L && !L.vazio ? "na última vistoria" : "hoje") : "")) +
+      lin("Pl/ha planejadas", mil(s.estandePlanejado)) +
+      lin("Estande final (pl/ha)", s.estandeFinal ? mil(s.estandeFinal) + ' · <span class="pct ' + clPct(s.estandePct) + '">' + s.estandePct + "%</span> do planejado" : "—") +
+      "</tbody></table>";
+  }
+
+  function histTabela(h, sel) {
+    return '<div class="tab-rol"><table class="rel-tab rel-hist"><thead><tr><th>Semana</th><th>Estádio</th><th>Problemas</th><th>Status</th></tr></thead><tbody>' +
       h.linhas.map((l) => {
-        if (l.vazio) return '<tr class="' + (l.w === sel ? "atual " : "") + 'vazia"><td>' + rotuloSemana(l.w) + '</td><td colspan="5">— sem vistoria —</td></tr>';
-        const pr = l.marcas.length ? l.marcas.map((m) => nomeProb(m) + " (" + nivS(m.nivel) + ")" + (m.tend !== "=" ? " " + m.tend : "")).join("; ") : "—";
-        const ap = l.apl ? (aplSim(l.apl).map((a) => a.ic).join(" ") || "não") : "—";
-        const aut = [...new Set(l.lista.map((v) => nomeAutor(v.autor).split(" ")[0]))].join(", ");
-        return '<tr class="' + (l.w === sel ? "atual" : "") + '"><td>' + rotuloSemana(l.w) + "</td><td>" + esc(l.estadio || "—") + "</td><td>" + pr + "</td><td>" + ap + "</td><td>" + (l.ult.status ? O.status[l.ult.status].ic : "—") + "</td><td>" + esc(aut) + "</td></tr>";
+        if (l.vazio) return '<tr class="' + (l.w === sel ? "atual " : "") + 'vazia"><td>' + rotuloSemana(l.w) + '</td><td colspan="3">— sem vistoria —</td></tr>';
+        const pr = l.marcas.map(probCurto).concat(l.sumiu.map((m) => "✓ " + nomeT(m)));
+        return '<tr class="' + (l.w === sel ? "atual" : "") + '"><td>' + rotuloSemana(l.w) + "</td><td>" + esc(l.estadio || "—") + "</td><td>" + (pr.join("; ") || "—") + '</td><td class="nw">' + sqSt(l.ult.status) + "</td></tr>";
       }).join("") + "</tbody></table></div>";
+  }
+
+  function blocoPivo(p, h, sel, num, fig) {
+    const pv = S.pivos[p], s = siteDe(p), L = h.linhas[h.linhas.length - 1];
+    const vazio = !L || L.vazio;
+    let x = '<section class="rel-pivo"><h3 class="rp-tit"><span>3.' + num + " " + p + " · " + esc(pv.variedade) + "</span>" +
+      '<span class="rp-st">' + (vazio ? "sem vistoria" : sqSt(L.ult.status)) + "</span></h3>" + fichaPivo(p, L);
+    if (vazio) {
+      x += '<p class="rp-ult">Sem vistoria nesta semana.</p>';
+      return x + '<div class="rp-bl"><h4>Histórico</h4>' + histTabela(h, sel) + "</div></section>";
+    }
+    const u = L.ult;
+    x += '<p class="rp-ult"><b>Última vistoria:</b> ' + fmtAno(u.data) + " · " + esc(u.estadio || "estádio não informado") + " · " + esc(nomeAutor(u.autor)) +
+      (u._pendente ? " · ainda no celular, sem enviar" : "") + (foiEditada(u) ? " · editada em " + fmt(u.atualizado_em.slice(0, 10)) : "") + "</p>";
+    if (L.lista.length > 1) {
+      x += '<ul class="rp-ant">' + L.lista.slice(1).map((v) => "<li>Antes, na semana: " + fmt(v.data) + " · " + sqSt(v.status) + " · " + probsDeVist(v) + " · " + esc(nomeAutor(v.autor)) + "</li>").join("") + "</ul>";
+    }
+    // a) Aplicação
+    x += '<div class="rp-bl"><h4>a) Aplicação</h4>';
+    if (!L.aplV) x += '<p class="rp-txt">Não avaliada nesta semana.</p>';
+    else {
+      const a = L.aplV.aplicacao, c = a.cats || {}, sim = aplSim(a);
+      const nao = O.aplicacoes.filter((t) => c[t.k] && c[t.k].precisa === "nao");
+      if (sim.length) x += '<ul class="rp-apl">' + sim.map((t) => "<li><b>" + esc(t.t) + "</b>: " + esc(c[t.k].obs || "sem alvo/prazo anotado") + "</li>").join("") + "</ul>";
+      const quem = ' <span class="rp-quem">(avaliado em ' + fmt(L.aplV.data) + " · " + esc(nomeAutor(L.aplV.autor)) + ")</span>";
+      if (nao.length) x += '<p class="rp-txt">Não precisa: ' + nao.map((t) => esc(t.t)).join(", ") + (a.obs ? "" : quem) + "</p>";
+      if (a.obs) x += '<p class="rp-txt">Obs.: ' + esc(a.obs) + quem + "</p>";
+      if (!nao.length && !a.obs) x += '<p class="rp-txt">' + quem.trim() + "</p>";
+    }
+    x += "</div>";
+    // b) Problemas
+    x += '<div class="rp-bl"><h4>b) Problemas</h4>';
+    if (!L.marcas.length && !L.sumiu.length) x += '<p class="rp-txt">Nada relevante marcado na última vistoria.</p>';
+    else {
+      const ord = L.marcas.slice().sort((a, b) => NIV[b.nivel] - NIV[a.nivel]);
+      x += '<div class="tab-rol"><table class="rel-tab rel-prob"><thead><tr><th>Problema</th><th>Tipo</th><th>Nível</th><th>Desde</th><th>Variação</th></tr></thead><tbody>' +
+        ord.map((m) => "<tr><td>" + nomeT(m) + "</td><td>" + esc(m.it.t) + '</td><td class="c">' + nivS(m.nivel) + "</td><td>" + (m.desde ? fmt(m.desde.data) : "—") + "</td><td>" + variacaoTxt[m.tend] + "</td></tr>").join("") +
+        L.sumiu.map((m) => '<tr class="sumiu"><td>' + nomeT(m) + "</td><td>" + esc(m.it.t) + '</td><td class="c">—</td><td>' + (h.primeiro[m.k] ? fmt(h.primeiro[m.k].data) : "—") + "</td><td>✓ não visto mais (era " + nivS(m.nivel) + ")</td></tr>").join("") +
+        "</tbody></table></div>";
+    }
+    x += "</div>";
+    // c) Observações
+    const obs = L.lista.filter((v) => v.anamnese);
+    x += '<div class="rp-bl"><h4>c) Observações</h4>' + (obs.length ? obs.map((v) => '<p class="rp-txt">' + (L.lista.length > 1 ? "<b>" + fmt(v.data) + " · " + (O.status[v.status] ? O.status[v.status].t : "") + ":</b> " : "") + esc(v.anamnese).replace(/\n/g, "<br>") + "</p>").join("") : '<p class="rp-txt">Sem observações.</p>') + "</div>";
+    // d) Fotos
+    const fotos = [].concat(...L.lista.slice().reverse().map((v) => v._fotos.map((f) => [f, v])));
+    x += '<div class="rp-bl"><h4>d) Fotos</h4>';
+    if (!fotos.length) x += '<p class="rp-txt">Sem fotos nesta semana.</p>';
+    else {
+      const pts = [];
+      x += '<div class="rel-figs">' + fotos.map(([f, v]) => {
+        fig.n++;
+        const it = O.itens.find((i) => i.k === f.item);
+        const leg = f.observacao || (it ? it.t : "Foto do " + p);
+        const pt = pontoDeFoto(f, fig.n, "Figura " + fig.n, leg);
+        if (pt) pts.push(pt);
+        return '<figure class="rel-fig"><div class="rf-img" data-act="foto" data-obs="' + esc(f.observacao || "") + '" data-item="' + esc(f.item || "") + '">' + imgFoto(f, false) + "</div>" +
+          "<figcaption><b>Figura " + fig.n + "</b> – " + esc(leg) + " (" + fmt(v.data) + " · " + esc(nomeAutor(f.autor || v.autor)) + ")" +
+          '<span class="rf-gps">' + gpsHTML(f, fig.n) + "</span></figcaption></figure>";
+      }).join("") + "</div>";
+      if (pts.length) x += '<div class="rel-mapa"><h4 class="rm-tit">Localização das fotos</h4>' + caixaMapa(pts) + "</div>";
+    }
+    x += "</div>";
+    // e) Histórico
+    x += '<div class="rp-bl rp-hist"><h4>e) Histórico</h4>' + histTabela(h, sel) + "</div>";
     return x + "</section>";
   }
 
@@ -810,82 +899,204 @@
     const sel = /^\d{4}-\d{2}-\d{2}$/.test(selArg || "") ? segunda(selArg) : semAtual;
     if (filtro && !S.pivos[filtro]) filtro = null;
     const todos = pivosSoja();
-    const lista = filtro ? [filtro] : todos;
+    const lista = ordemNum(filtro ? [filtro] : todos);
     const VS = Object.fromEntries(todos.map((p) => [p, vistoriasDe(p)]));
     const semanas = semanasAte(sel, VS);
     const H = Object.fromEntries(lista.map((p) => [p, historicoPivo(VS[p], sel, semanas)]));
+    const LW = (p) => { const l = H[p].linhas; return l[l.length - 1]; };
 
-    let feitos = 0, pend = 0; const cont = { ok: 0, atencao: 0, problema: 0 };
-    const semVist = [], nunca = [], novos = [], piora = [], melhora = [];
-    const apl = Object.fromEntries(O.aplicacoes.map((a) => [a.k, []]));
+    let pend = 0; const cont = { ok: 0, atencao: 0, problema: 0 };
+    const feitos = [], semVist = [], nunca = [], piora = [], melhora = [], aplRows = [];
     lista.forEach((p) => {
-      const h = H[p], L = h.linhas[h.linhas.length - 1];
+      const h = H[p], L = LW(p);
       if (!h.temAlgo) nunca.push(p);
       if (!L || L.vazio) { semVist.push(p); return; }
-      feitos++;
+      feitos.push(p);
       pend += L.lista.filter((v) => v._pendente).length;
       if (L.ult.status) cont[L.ult.status]++;
-      L.marcas.forEach((m) => { if (m.tend === "★") novos.push([p, m]); else if (m.tend === "▲") piora.push([p, m]); else if (m.tend === "▼") melhora.push([p, m]); });
-      L.sumiu.forEach((m) => melhora.push([p, Object.assign({}, m, { tend: "✓" })]));
-      if (L.apl) aplSim(L.apl).forEach((a) => apl[a.k].push([p, L.apl.cats[a.k].obs]));
+      L.marcas.forEach((m) => { if (m.tend === "▲") piora.push(p + " " + nomeT(m) + " (" + nivS(m.nivel) + ")"); else if (m.tend === "▼") melhora.push(p + " " + nomeT(m) + " (" + nivS(m.nivel) + ")"); });
+      L.sumiu.forEach((m) => melhora.push(p + " " + nomeT(m) + " (não visto mais)"));
+      if (L.aplV) {
+        const a = L.aplV.aplicacao;
+        aplSim(a).forEach((t, i) => aplRows.push("<tr><td><b>" + p + "</b></td><td>" + esc(t.t) + "</td><td>" + esc(a.cats[t.k].obs || "—") +
+          (i === 0 && a.obs ? '<br><small>Obs.: ' + esc(a.obs) + "</small>" : "") + "</td><td>" + esc(nomeAutor(L.aplV.autor)) + " · " + fmt(L.aplV.data) + "</td></tr>"));
+      }
     });
-    const linhaProb = ([p, m]) => "<li><b>" + p + "</b> · " + nomeProb(m) + (m.tend === "✓" ? " (não visto mais)" : " (" + nivS(m.nivel) + ")") +
-      (m.tend === "★" && m.desde ? " — 1º registro em " + fmt(m.desde.data) + ", por " + esc(nomeAutor(m.desde.autor)) : "") + "</li>";
-    const listaOu = (arr, f, vazio) => (arr.length ? "<ul>" + arr.map(f).join("") + "</ul>" : '<p class="nota">' + vazio + "</p>");
-    const aplTxt = O.aplicacoes.filter((a) => apl[a.k].length).map((a) => "<li>" + a.ic + " <b>" + esc(a.t) + ":</b> " + apl[a.k].map(([p, o]) => p + (o ? " (" + esc(o) + ")" : "")).join(", ") + "</li>");
 
-    const opcoes = '<option value="">Todos os pivôs</option>' + todos.map((p) => '<option value="' + p + '"' + (p === filtro ? " selected" : "") + ">" + p + " · " + esc(S.pivos[p].variedade) + "</option>").join("");
+    const opcoes = '<option value="">Todos os pivôs</option>' + ordemNum(todos).map((p) => '<option value="' + p + '"' + (p === filtro ? " selected" : "") + ">" + p + " · " + esc(S.pivos[p].variedade) + "</option>").join("");
     const base = "#/relatorio/";
     const suf = filtro ? "/" + filtro : "";
-    const geradoEm = new Date().toLocaleString("pt-BR");
+    const ano = parseD(addDias(sel, 6)).getFullYear();
+    const fonte = "servidor" + (S.cacheEm ? " (atualizado em " + dataHora(new Date(S.cacheEm)) + ")" : "") + (SITE.origemData ? " + planilha de " + fmt(SITE.origemData) : "") +
+      (pend ? " + " + pend + " vistoria(s) ainda no celular, sem enviar" : "");
     document.title = "Relatório semanal · Sede V";
 
     let corpo =
       '<div class="cartao nao-imprimir rel-ctrl">' +
-      '<div class="rel-nav"><a class="btn sec" href="' + base + addDias(sel, -7) + suf + '">‹</a><b>Semana ' + rotuloSemana(sel) + "/" + parseD(sel).getFullYear() + "</b>" +
+      '<div class="rel-nav"><a class="btn sec" href="' + base + addDias(sel, -7) + suf + '">‹</a><b>Semana ' + rotuloSemana(sel) + "/" + ano + "</b>" +
       (sel < semAtual ? '<a class="btn sec" href="' + base + addDias(sel, 7) + suf + '">›</a>' : '<span class="btn sec off">›</span>') + "</div>" +
       '<select id="relPivo">' + opcoes + "</select>" +
       '<button class="btn grande" data-act="pdf">⬇️ Baixar PDF</button>' +
       '<p class="nota">O relatório é montado na hora com os dados mais recentes: toda vistoria nova ou editada já entra aqui e no PDF. No celular, escolha <b>Salvar como PDF</b> na tela que abrir.</p></div>' +
 
-      '<div id="rel"><header class="rel-topo"><h1>Relatório semanal acumulado · Sede V</h1>' +
-      "<p>" + esc(SAFRA) + " · Semana " + rotuloSemana(sel) + "/" + parseD(sel).getFullYear() + (filtro ? " · " + filtro : " · " + lista.length + " pivôs") + "</p>" +
-      '<p class="nota top0">Gerado em ' + geradoEm + " por " + esc(S.user.nome) + (S.cacheEm ? " · dados do servidor de " + new Date(S.cacheEm).toLocaleString("pt-BR") : "") +
-      (SITE.origemData ? " · estande e GM da planilha de " + fmtAno(SITE.origemData) : "") + "</p>" +
-      (pend ? '<p class="aviso-ed">⏳ ' + pend + " vistoria(s) desta semana ainda estão no celular, sem enviar. Já aparecem aqui.</p>" : "") + "</header>" +
+      '<div id="rel">' +
+      '<table class="rel-tab rel-cabtab"><thead><tr><th colspan="2">Relatório semanal de monitoramento · Sede V' + (filtro ? " · " + filtro : "") + "</th></tr></thead><tbody>" +
+      "<tr><td>Safra</td><td>" + esc(SAFRA) + "</td></tr>" +
+      "<tr><td>Semana</td><td>" + rotuloSemana(sel) + "/" + ano + "</td></tr>" +
+      "<tr><td>Gerado por</td><td>" + esc(S.user.nome) + " em " + dataHora(new Date()) + "</td></tr>" +
+      "<tr><td>Fonte</td><td>" + esc(fonte) + "</td></tr></tbody></table>" +
+      '<div class="rel-sumario"><b>Sumário</b><ol><li>Aplicações indicadas</li><li>Resumo da semana</li><li>Por pivô</li><li>Sem vistoria</li></ol></div>' +
 
-      '<section class="rel-resumo"><h2>1. Resumo da semana</h2>' +
-      '<div class="rel-kpis"><div><b>' + feitos + "/" + lista.length + "</b><small>vistoriados</small></div><div><b>🟢 " + cont.ok + "</b><small>OK</small></div><div><b>🟡 " + cont.atencao + "</b><small>Atenção</small></div><div><b>🔴 " + cont.problema + "</b><small>Problema</small></div></div>" +
-      "<h3>★ Problemas novos</h3>" + listaOu(novos, linhaProb, "Nenhum problema novo nesta semana.") +
-      "<h3>▲ Pioraram</h3>" + listaOu(piora, linhaProb, "Nada piorou em relação à semana anterior.") +
-      "<h3>▼ Melhoraram</h3>" + listaOu(melhora, linhaProb, "Nada melhorou em relação à semana anterior.") +
-      "<h3>🚜 Aplicações indicadas</h3>" + (aplTxt.length ? "<ul>" + aplTxt.join("") + "</ul>" : '<p class="nota">Nenhuma aplicação indicada nas vistorias desta semana.</p>') +
-      (semVist.length ? "<h3>Sem vistoria nesta semana</h3><p>" + semVist.join(", ") + "</p>" : "") +
-      "</section>" +
+      // 1. Aplicações
+      '<section class="rel-sec"><h2>1. Aplicações indicadas</h2><div class="rel-destaque">' +
+      (aplRows.length ? '<div class="tab-rol"><table class="rel-tab"><thead><tr><th>Pivô</th><th>Tipo</th><th>Alvo / prazo (como anotado)</th><th>Indicado por · data</th></tr></thead><tbody>' + aplRows.join("") + "</tbody></table></div>"
+        : '<p class="rp-txt">Nenhuma aplicação indicada nesta semana.</p>') + "</div></section>" +
 
-      '<h2 class="rel-h2">2. Por pivô</h2>';
-    const comDados = lista.filter((p) => H[p].temAlgo || filtro);
-    comDados.forEach((p) => { corpo += blocoRelatorio(p, H[p], sel); });
-    if (!filtro && nunca.length) corpo += '<p class="nota">Ainda sem nenhuma vistoria: ' + nunca.join(", ") + ".</p>";
-    if (!comDados.length) corpo += '<div class="vazio-msg">Nenhuma vistoria lançada até esta semana.</div>';
-    corpo += '<p class="nota rel-leg">★ 1º registro do problema · ▲ piorou · ▼ melhorou · = igual à semana anterior · ✓ não visto mais · B/M/A = nível baixo, médio, alto · 🚜 aplicação indicada · % do estande = estande final ÷ pl/ha planejadas</p></div>';
+      // 2. Resumo
+      '<section class="rel-sec"><h2>2. Resumo da semana</h2>' +
+      '<p class="rel-nums"><b>' + feitos.length + "/" + lista.length + "</b> vistoriados · " + '<span class="sq sq-ok"></span><b>' + cont.ok + "</b> OK · " +
+      '<span class="sq sq-atencao"></span><b>' + cont.atencao + "</b> Atenção · " + '<span class="sq sq-problema"></span><b>' + cont.problema + "</b> Problema</p>";
+    if (feitos.length) {
+      corpo += '<div class="tab-rol"><table class="rel-tab rel-res"><thead><tr><th>Pivô</th><th>Variedade</th><th>Estádio</th><th>DAE</th><th>Status</th><th>Problemas (nível)</th><th>Aplic.</th></tr></thead><tbody>' +
+        feitos.map((p) => {
+          const L = LW(p), s = siteDe(p);
+          const ap = L.aplV ? (aplSim(L.aplV.aplicacao).map((a) => esc(a.t)).join(", ") || "não") : "—";
+          return "<tr><td><b>" + p + "</b></td><td>" + esc(S.pivos[p].variedade) + "</td><td>" + esc(L.estadio || "—") + '</td><td class="c">' + (s.emergencia ? dias(s.emergencia, L.ult.data) : "—") +
+            '</td><td class="nw">' + sqSt(L.ult.status) + "</td><td>" + (L.marcas.map(probCurto).join(", ") || "—") + "</td><td>" + ap + "</td></tr>";
+        }).join("") + "</tbody></table></div>" +
+        '<p class="rel-var"><b>Pioraram:</b> ' + (piora.length ? piora.join(", ") : "nenhum") + " · <b>Melhoraram:</b> " + (melhora.length ? melhora.join(", ") : "nenhum") + "</p>";
+    } else corpo += '<p class="rp-txt">Nenhum pivô vistoriado nesta semana.</p>';
+    corpo += "</section>";
+
+    // 3. Por pivô
+    const blocos = filtro ? lista : feitos;
+    corpo += '<section class="rel-sec"><h2>3. Por pivô</h2>';
+    const atn = feitos.filter((p) => ["problema", "atencao"].includes(LW(p).ult.status));
+    if (!filtro) {
+      atn.sort((a, b) => { const ga = gravidade(LW(a)), gb = gravidade(LW(b)); for (let i = 0; i < ga.length; i++) if (ga[i] !== gb[i]) return gb[i] - ga[i]; return a.localeCompare(b, "pt-BR", { numeric: true }); });
+      corpo += '<div class="rel-destaque rel-atn"><b>Precisam de mais atenção</b>' +
+        (atn.length ? "<ol>" + atn.map((p) => '<li><b>' + p + '</b> <span class="nw">' + sqSt(LW(p).ult.status) + "</span> – " + motivoCurto(LW(p)) + "</li>").join("") + "</ol>" : '<p class="rp-txt">Nenhum pivô em Atenção ou Problema nesta semana.</p>') + "</div>";
+      if (blocos.length) corpo += '<p class="rp-txt nota">A seguir, os ' + blocos.length + " pivôs vistoriados, em ordem de número (no PDF, um por página).</p>";
+    }
+    const fig = { n: 0 };
+    blocos.forEach((p, i) => { corpo += blocoPivo(p, H[p], sel, i + 1, fig); });
+    if (!blocos.length) corpo += '<p class="rp-txt">Nenhum pivô vistoriado nesta semana.</p>';
+    corpo += "</section>";
+
+    // 4. Sem vistoria + legenda
+    const antes = semVist.filter((p) => !nunca.includes(p));
+    const ultData = (p) => { const v = VS[p].find((x) => x.data <= addDias(sel, 6)); return v ? " (última " + fmt(v.data) + ")" : ""; };
+    corpo += '<section class="rel-sec rel-fim"><h2>4. Sem vistoria nesta semana</h2>' +
+      (semVist.length ? '<p class="rp-txt"><b>' + semVist.length + " pivô(s) sem vistoria.</b>" + (antes.length ? " Vistoriados antes, mas não nesta semana: " + antes.map((p) => p + ultData(p)).join(", ") + "." : "") + "</p>" +
+        (nunca.length ? '<p class="rp-txt"><b>Ainda sem nenhuma vistoria:</b> ' + nunca.join(", ") + "</p>" : "")
+        : '<p class="rp-txt">Todos os pivôs foram vistoriados nesta semana.</p>') +
+      '<p class="rel-leg"><b>Legenda:</b> B/M/A = nível baixo, médio, alto · <b>NOVO</b> = 1º registro do problema nesta semana · ▲ piorou · ▼ melhorou · = igual à semana anterior · ✓ não visto mais · ' +
+      '<span class="sq sq-ok"></span>OK <span class="sq sq-atencao"></span>Atenção <span class="sq sq-problema"></span>Problema · % do estande = estande final ÷ pl/ha planejadas (verde ≥ 90%, amarelo 80–89%, vermelho &lt; 80%) · Ponto N no mapa de satélite = Figura N (GPS = posição do celular quando a foto foi colocada na vistoria; imagens © Esri)</p>' +
+      "</section></div>";
 
     app.innerHTML = topo("Relatório semanal", filtro ? "#/pivo/" + filtro : "#/") + '<main class="pag rel">' + corpo + "</main>";
     const s = $("#relPivo");
     if (s) s.addEventListener("change", () => { location.hash = base + sel + (s.value ? "/" + s.value : ""); });
     app.dataset.pdf = "Relatorio_SedeV_" + sel + (filtro ? "_" + filtro : "");
     carregarImagens();
+    ativarMapas($("#rel"));
   }
 
-  async function baixarPDF() {
-    toast("Preparando o PDF…");
+  // Deixa tudo pronto para imprimir: fotos carregadas e mapas no tamanho do A4 com as imagens de satélite carregadas.
+  async function prepararPDF() {
     await carregarImagens();
     const pendentes = $$("#rel img").filter((i) => i.getAttribute("src") && !i.complete);
     await Promise.all(pendentes.map((i) => new Promise((ok) => { i.addEventListener("load", ok, { once: true }); i.addEventListener("error", ok, { once: true }); setTimeout(ok, 8000); })));
+    await Promise.all($$("#rel .mapa-fotos[data-pontos]").map((el) => {
+      el.classList.add("pdf");
+      if (!el._ini) return iniciarMapa(el);
+      if (el._mapa) { el._mapa.invalidateSize(false); enquadrar(el._mapa, el._pontos); return esperarTiles(el._camada); }
+      return null;
+    }));
+  }
+  function depoisPDF() {
+    $$(".mapa-fotos.pdf").forEach((el) => { el.classList.remove("pdf"); if (el._mapa) { el._mapa.invalidateSize(false); enquadrar(el._mapa, el._pontos); } });
+  }
+  window.addEventListener("afterprint", depoisPDF);
+  async function baixarPDF() {
+    toast("Preparando o PDF…");
+    await prepararPDF();
     const t = document.title;
     document.title = app.dataset.pdf || "Relatorio_SedeV";
     window.print();
     setTimeout(() => { document.title = t; }, 1500);
+  }
+
+  // ---------- mini mapa de satélite das fotos (reaproveitável: relatório, histórico e, depois, o resumo do pivô) ----------
+  // ponto = { n, lat, lng, rot ("Figura 3" / "Foto 2"), leg, caminho, url }
+  const TILES = "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}";
+  function temGps(f) {
+    const la = f && f.lat != null ? Number(f.lat) : NaN, lo = f && f.lng != null ? Number(f.lng) : NaN;
+    return isFinite(la) && isFinite(lo) && (la || lo) ? { lat: la, lng: lo } : null;
+  }
+  function pontoDeFoto(f, n, rot, leg) {
+    const g = temGps(f);
+    return g ? { n, lat: g.lat, lng: g.lng, rot, leg: leg || "", caminho: f.caminho || null, url: f._url || null } : null;
+  }
+  const listaPontos = (pts) => "<ul>" + pts.map((p) => "<li>Ponto " + p.n + " · " + p.lat.toFixed(5) + ", " + p.lng.toFixed(5) + (p.leg ? " – " + esc(p.leg) : "") + "</li>").join("") + "</ul>";
+  // HTML de uma caixa de mapa (o Leaflet só é criado depois, por ativarMapas / iniciarMapa)
+  function caixaMapa(pts, oculto) {
+    return '<div class="mapa-fotos' + (oculto ? " oculto" : "") + '" data-pontos="' + esc(JSON.stringify(pts)) + '"></div>';
+  }
+  function enquadrar(m, pts) {
+    if (pts.length === 1) m.setView([pts[0].lat, pts[0].lng], 16, { animate: false });
+    else m.fitBounds(L.latLngBounds(pts.map((p) => [p.lat, p.lng])), { padding: [30, 30], maxZoom: 17, animate: false });
+  }
+  function esperarTiles(camada, ms) {
+    return new Promise((ok) => {
+      let feito = false;
+      const fim = () => { if (!feito) { feito = true; ok(true); } };
+      camada.once("load", fim);
+      setTimeout(() => { if (!camada.isLoading || !camada.isLoading()) fim(); }, 60);
+      setTimeout(fim, ms || 8000);
+    });
+  }
+  function popupPonto(p) {
+    const u = p.url || (p.caminho && S.urls[p.caminho] && S.urls[p.caminho].url);
+    return '<div class="pt-pop">' + (u ? '<img src="' + esc(u) + '" alt="foto">' : "") + "<b>" + esc(p.rot || "Ponto " + p.n) + "</b>" + (p.leg ? " – " + esc(p.leg) : "") + "</div>";
+  }
+  // Cria o mapa no elemento. Sem internet ou sem Leaflet: quadro cinza com a lista de pontos. Devolve uma promessa (tiles carregados).
+  function mapaFotos(el, pts) {
+    el._ini = true; el._pontos = pts;
+    if (!pts || !pts.length) { el.style.display = "none"; return Promise.resolve(false); }
+    const semMapa = () => { el.classList.add("sem-mapa"); el.innerHTML = "<p><b>Mapa de satélite precisa de internet</b></p>" + listaPontos(pts); return Promise.resolve(false); };
+    if (typeof L === "undefined" || !online()) return semMapa();
+    try {
+      const m = L.map(el, { zoomAnimation: false, fadeAnimation: false, markerZoomAnimation: false, scrollWheelZoom: false, tap: false });
+      m.attributionControl.setPrefix(false);
+      const camada = L.tileLayer(TILES, { maxZoom: 19, maxNativeZoom: 18, attribution: "Imagens © Esri" }).addTo(m);
+      pts.forEach((p) => {
+        L.marker([p.lat, p.lng], { keyboard: false, title: p.rot || "Ponto " + p.n,
+          icon: L.divIcon({ className: "pt-foto", html: "<span>" + p.n + "</span>", iconSize: [28, 28], iconAnchor: [14, 14], popupAnchor: [0, -12] })
+        }).addTo(m).bindPopup(() => popupPonto(p), { maxWidth: 220 });
+      });
+      enquadrar(m, pts);
+      el._mapa = m; el._camada = camada;
+      return esperarTiles(camada);
+    } catch (e) {
+      console.error("mapa", e);
+      el.innerHTML = "";
+      return semMapa();
+    }
+  }
+  function iniciarMapa(el) {
+    if (el._ini) return Promise.resolve(!!el._mapa);
+    let pts = [];
+    try { pts = JSON.parse(el.dataset.pontos || "[]"); } catch (e) { console.error(e); }
+    return mapaFotos(el, pts);
+  }
+  // Cria os mapas visíveis só quando aparecem na tela (deixa o app leve).
+  function ativarMapas(raiz) {
+    const els = $$(".mapa-fotos[data-pontos]:not(.oculto)", raiz || app).filter((el) => !el._ini);
+    if (!els.length) return;
+    if (!("IntersectionObserver" in window)) { els.forEach(iniciarMapa); return; }
+    const ob = new IntersectionObserver((ents) => ents.forEach((e) => { if (e.isIntersecting) { ob.unobserve(e.target); iniciarMapa(e.target); } }), { rootMargin: "200px" });
+    els.forEach((el) => ob.observe(el));
   }
 
   // ---------- visualizador de foto ----------
@@ -915,6 +1126,16 @@
       case "abrir": location.hash = "#/pivo/" + el.dataset.p; break;
       case "sair": sair(); break;
       case "foto": verFoto(el); break;
+      case "mapa": {
+        const cx = el.nextElementSibling;
+        if (!cx || !cx.classList.contains("mapa-fotos")) break;
+        const abrir = cx.classList.contains("oculto");
+        cx.classList.toggle("oculto", !abrir);
+        if (!el.dataset.t) el.dataset.t = el.textContent;
+        el.textContent = abrir ? "Esconder mapa" : el.dataset.t;
+        if (abrir) { if (!cx._ini) { carregarImagens(); iniciarMapa(cx); } else if (cx._mapa) { cx._mapa.invalidateSize(false); enquadrar(cx._mapa, cx._pontos); } }
+        break;
+      }
       case "pdf": el.disabled = true; await baixarPDF(); el.disabled = false; break;
       case "estadio": if (d) { d.estadio = d.estadio === el.dataset.v ? "" : el.dataset.v; re(); } break;
       case "nivel":
