@@ -1,8 +1,8 @@
 // GERADO AUTOMATICAMENTE por App_Monitoramento/gerar_dados_app.py a partir do Painel da Safra.
 // Não edite à mão. Para atualizar: atualize a planilha e rode o gerar_painel_safra.py (ele chama este).
 window.APP_SITE = {
- "origemData": "2026-11-04",
- "geradoEm": "2026-11-16 20:29",
+ "origemData": "2026-11-19",
+ "geradoEm": "2026-11-19 08:37",
  "pivos": {
   "PV501": {
    "emergencia": "2026-10-12",
@@ -19,13 +19,23 @@ window.APP_SITE = {
      "programadas": 0
     },
     "herbicida": {
-     "ultima": "2026-10-24",
-     "feitas": 2,
+     "ultima": "2026-11-12",
+     "feitas": 3,
      "programadas": 0
     },
     "nutricao": {
-     "ultima": "2026-11-03",
-     "feitas": 2,
+     "ultima": "2026-11-12",
+     "feitas": 4,
+     "programadas": 0
+    },
+    "inseticida": {
+     "ultima": "2026-11-07",
+     "feitas": 1,
+     "programadas": 0
+    },
+    "fungicida": {
+     "ultima": "2026-11-07",
+     "feitas": 1,
      "programadas": 0
     }
    }
@@ -45,13 +55,23 @@ window.APP_SITE = {
      "programadas": 0
     },
     "herbicida": {
-     "ultima": "2026-10-25",
-     "feitas": 2,
+     "ultima": "2026-11-12",
+     "feitas": 3,
      "programadas": 0
     },
     "nutricao": {
-     "ultima": "2026-11-03",
-     "feitas": 2,
+     "ultima": "2026-11-12",
+     "feitas": 4,
+     "programadas": 0
+    },
+    "inseticida": {
+     "ultima": "2026-11-07",
+     "feitas": 1,
+     "programadas": 0
+    },
+    "fungicida": {
+     "ultima": "2026-11-07",
+     "feitas": 1,
      "programadas": 0
     }
    }
@@ -71,14 +91,24 @@ window.APP_SITE = {
      "programadas": 0
     },
     "herbicida": {
-     "ultima": "2026-10-25",
-     "feitas": 3,
+     "ultima": "2026-11-07",
+     "feitas": 4,
      "programadas": 0
     },
     "nutricao": {
-     "ultima": "2026-10-20",
+     "ultima": "2026-11-06",
+     "feitas": 2,
+     "programadas": 0
+    },
+    "inseticida": {
+     "ultima": "2026-11-12",
      "feitas": 1,
-     "programadas": 1
+     "programadas": 0
+    },
+    "fungicida": {
+     "ultima": "2026-11-12",
+     "feitas": 1,
+     "programadas": 0
     }
    }
   },
@@ -97,14 +127,24 @@ window.APP_SITE = {
      "programadas": 0
     },
     "herbicida": {
-     "ultima": "2026-10-28",
-     "feitas": 2,
-     "programadas": 1
+     "ultima": "2026-11-06",
+     "feitas": 3,
+     "programadas": 0
     },
     "nutricao": {
-     "ultima": "2026-10-21",
+     "ultima": "2026-11-05",
+     "feitas": 2,
+     "programadas": 0
+    },
+    "inseticida": {
+     "ultima": "2026-11-12",
      "feitas": 1,
-     "programadas": 1
+     "programadas": 0
+    },
+    "fungicida": {
+     "ultima": "2026-11-12",
+     "feitas": 1,
+     "programadas": 0
     }
    }
   },
@@ -123,12 +163,22 @@ window.APP_SITE = {
      "programadas": 0
     },
     "herbicida": {
-     "ultima": "2026-10-28",
-     "feitas": 3,
-     "programadas": 1
+     "ultima": "2026-11-06",
+     "feitas": 4,
+     "programadas": 0
     },
     "nutricao": {
-     "ultima": "2026-10-21",
+     "ultima": "2026-11-16",
+     "feitas": 2,
+     "programadas": 0
+    },
+    "inseticida": {
+     "ultima": "2026-11-12",
+     "feitas": 1,
+     "programadas": 0
+    },
+    "fungicida": {
+     "ultima": "2026-11-12",
      "feitas": 1,
      "programadas": 0
     }
@@ -149,12 +199,22 @@ window.APP_SITE = {
      "programadas": 0
     },
     "herbicida": {
-     "ultima": "2026-10-27",
-     "feitas": 2,
+     "ultima": "2026-11-12",
+     "feitas": 3,
      "programadas": 0
     },
     "nutricao": {
-     "ultima": "2026-10-21",
+     "ultima": "2026-11-16",
+     "feitas": 3,
+     "programadas": 0
+    },
+    "inseticida": {
+     "ultima": "2026-11-12",
+     "feitas": 1,
+     "programadas": 0
+    },
+    "fungicida": {
+     "ultima": "2026-11-12",
      "feitas": 1,
      "programadas": 0
     }
@@ -175,12 +235,22 @@ window.APP_SITE = {
      "programadas": 0
     },
     "herbicida": {
-     "ultima": "2026-10-22",
-     "feitas": 2,
+     "ultima": "2026-11-12",
+     "feitas": 3,
      "programadas": 0
     },
     "nutricao": {
-     "ultima": "2026-10-21",
+     "ultima": "2026-11-17",
+     "feitas": 3,
+     "programadas": 0
+    },
+    "inseticida": {
+     "ultima": "2026-11-14",
+     "feitas": 1,
+     "programadas": 0
+    },
+    "fungicida": {
+     "ultima": "2026-11-14",
      "feitas": 1,
      "programadas": 0
     }
@@ -201,13 +271,18 @@ window.APP_SITE = {
      "programadas": 0
     },
     "herbicida": {
-     "ultima": "2026-10-23",
-     "feitas": 3,
+     "ultima": "2026-11-11",
+     "feitas": 5,
      "programadas": 0
     },
     "nutricao": {
-     "ultima": "2026-10-22",
-     "feitas": 1,
+     "ultima": "2026-11-17",
+     "feitas": 3,
+     "programadas": 0
+    },
+    "fungicida": {
+     "ultima": "2026-11-13",
+     "feitas": 2,
      "programadas": 0
     }
    }
@@ -227,12 +302,22 @@ window.APP_SITE = {
      "programadas": 0
     },
     "herbicida": {
-     "ultima": "2026-10-23",
-     "feitas": 3,
+     "ultima": "2026-11-11",
+     "feitas": 4,
      "programadas": 0
     },
     "nutricao": {
-     "ultima": "2026-10-22",
+     "ultima": "2026-11-17",
+     "feitas": 3,
+     "programadas": 0
+    },
+    "inseticida": {
+     "ultima": "2026-11-14",
+     "feitas": 1,
+     "programadas": 0
+    },
+    "fungicida": {
+     "ultima": "2026-11-14",
      "feitas": 1,
      "programadas": 0
     }
@@ -253,12 +338,22 @@ window.APP_SITE = {
      "programadas": 0
     },
     "herbicida": {
-     "ultima": "2026-10-29",
-     "feitas": 3,
+     "ultima": "2026-11-11",
+     "feitas": 4,
      "programadas": 0
     },
     "nutricao": {
-     "ultima": "2026-10-21",
+     "ultima": "2026-11-18",
+     "feitas": 3,
+     "programadas": 0
+    },
+    "inseticida": {
+     "ultima": "2026-11-14",
+     "feitas": 1,
+     "programadas": 0
+    },
+    "fungicida": {
+     "ultima": "2026-11-14",
      "feitas": 1,
      "programadas": 0
     }
@@ -279,12 +374,22 @@ window.APP_SITE = {
      "programadas": 0
     },
     "herbicida": {
-     "ultima": "2026-10-29",
-     "feitas": 2,
+     "ultima": "2026-11-12",
+     "feitas": 3,
      "programadas": 0
     },
     "nutricao": {
-     "ultima": "2026-10-21",
+     "ultima": "2026-11-16",
+     "feitas": 3,
+     "programadas": 0
+    },
+    "inseticida": {
+     "ultima": "2026-11-14",
+     "feitas": 1,
+     "programadas": 0
+    },
+    "fungicida": {
+     "ultima": "2026-11-14",
      "feitas": 1,
      "programadas": 0
     }
@@ -293,8 +398,8 @@ window.APP_SITE = {
   "PV512": {
    "emergencia": "2026-10-16",
    "estandePlanejado": 340000,
-   "estandeFinal": 265000,
-   "estandePct": 78,
+   "estandeFinal": 331944,
+   "estandePct": 98,
    "gm": "6.7",
    "gmDetalhe": "6.7 (405 · BA Oeste) · 6.8 (M3) · 6.9 (M4)",
    "populacaoOficial": "340 a 380 mil pl/ha — BA Oeste irrigado (405), Brasmax",
@@ -310,7 +415,17 @@ window.APP_SITE = {
      "programadas": 0
     },
     "nutricao": {
-     "ultima": "2026-10-21",
+     "ultima": "2026-11-16",
+     "feitas": 2,
+     "programadas": 0
+    },
+    "inseticida": {
+     "ultima": "2026-11-14",
+     "feitas": 1,
+     "programadas": 0
+    },
+    "fungicida": {
+     "ultima": "2026-11-14",
      "feitas": 1,
      "programadas": 0
     }
@@ -331,13 +446,23 @@ window.APP_SITE = {
      "programadas": 0
     },
     "herbicida": {
-     "ultima": "2026-10-28",
-     "feitas": 4,
+     "ultima": "2026-11-05",
+     "feitas": 5,
      "programadas": 0
     },
     "nutricao": {
-     "ultima": "2026-10-30",
+     "ultima": "2026-11-18",
+     "feitas": 3,
+     "programadas": 0
+    },
+    "inseticida": {
+     "ultima": "2026-11-18",
      "feitas": 2,
+     "programadas": 0
+    },
+    "fungicida": {
+     "ultima": "2026-11-11",
+     "feitas": 1,
      "programadas": 0
     }
    }
@@ -357,13 +482,23 @@ window.APP_SITE = {
      "programadas": 0
     },
     "herbicida": {
-     "ultima": "2026-10-22",
-     "feitas": 3,
+     "ultima": "2026-11-06",
+     "feitas": 4,
      "programadas": 0
     },
     "nutricao": {
-     "ultima": "2026-10-30",
+     "ultima": "2026-11-18",
+     "feitas": 3,
+     "programadas": 0
+    },
+    "inseticida": {
+     "ultima": "2026-11-18",
      "feitas": 2,
+     "programadas": 0
+    },
+    "fungicida": {
+     "ultima": "2026-11-11",
+     "feitas": 1,
      "programadas": 0
     }
    }
@@ -383,13 +518,23 @@ window.APP_SITE = {
      "programadas": 0
     },
     "herbicida": {
-     "ultima": "2026-10-22",
-     "feitas": 3,
+     "ultima": "2026-11-07",
+     "feitas": 4,
      "programadas": 0
     },
     "nutricao": {
-     "ultima": "2026-11-03",
+     "ultima": "2026-11-18",
+     "feitas": 3,
+     "programadas": 0
+    },
+    "inseticida": {
+     "ultima": "2026-11-18",
      "feitas": 2,
+     "programadas": 0
+    },
+    "fungicida": {
+     "ultima": "2026-11-12",
+     "feitas": 1,
      "programadas": 0
     }
    }
@@ -409,13 +554,23 @@ window.APP_SITE = {
      "programadas": 0
     },
     "herbicida": {
-     "ultima": "2026-10-22",
-     "feitas": 3,
+     "ultima": "2026-11-05",
+     "feitas": 4,
      "programadas": 0
     },
     "nutricao": {
-     "ultima": "2026-11-02",
+     "ultima": "2026-11-18",
+     "feitas": 3,
+     "programadas": 0
+    },
+    "inseticida": {
+     "ultima": "2026-11-18",
      "feitas": 2,
+     "programadas": 0
+    },
+    "fungicida": {
+     "ultima": "2026-11-11",
+     "feitas": 1,
      "programadas": 0
     }
    }
@@ -430,23 +585,28 @@ window.APP_SITE = {
    "populacaoOficial": "180 a 240 mil pl/ha — BA Oeste irrigado (microrregião 405), Brasmax",
    "aplicacoes": {
     "microbiologico": {
-     "ultima": "2026-09-23",
-     "feitas": 1,
-     "programadas": 1
+     "ultima": "2026-11-04",
+     "feitas": 2,
+     "programadas": 0
     },
     "herbicida": {
-     "ultima": "2026-10-30",
-     "feitas": 5,
+     "ultima": "2026-11-06",
+     "feitas": 6,
      "programadas": 0
     },
     "nutricao": {
      "ultima": "2026-10-27",
      "feitas": 2,
-     "programadas": 0
+     "programadas": 1
     },
     "fungicida": {
-     "ultima": "2026-10-22",
-     "feitas": 1,
+     "ultima": "2026-11-17",
+     "feitas": 3,
+     "programadas": 0
+    },
+    "inseticida": {
+     "ultima": "2026-11-17",
+     "feitas": 2,
      "programadas": 0
     }
    }
@@ -461,23 +621,28 @@ window.APP_SITE = {
    "populacaoOficial": "180 a 240 mil pl/ha — BA Oeste irrigado (microrregião 405), Brasmax",
    "aplicacoes": {
     "microbiologico": {
-     "ultima": "2026-09-22",
-     "feitas": 1,
-     "programadas": 1
+     "ultima": "2026-11-04",
+     "feitas": 2,
+     "programadas": 0
     },
     "herbicida": {
-     "ultima": "2026-10-30",
-     "feitas": 5,
+     "ultima": "2026-11-07",
+     "feitas": 6,
      "programadas": 0
     },
     "nutricao": {
      "ultima": "2026-10-24",
      "feitas": 2,
-     "programadas": 0
+     "programadas": 1
     },
     "fungicida": {
-     "ultima": "2026-10-22",
-     "feitas": 1,
+     "ultima": "2026-11-18",
+     "feitas": 3,
+     "programadas": 0
+    },
+    "inseticida": {
+     "ultima": "2026-11-18",
+     "feitas": 2,
      "programadas": 0
     }
    }
@@ -492,9 +657,9 @@ window.APP_SITE = {
    "populacaoOficial": "180 a 240 mil pl/ha — BA Oeste irrigado (microrregião 405), Brasmax",
    "aplicacoes": {
     "microbiologico": {
-     "ultima": "2026-10-05",
-     "feitas": 1,
-     "programadas": 1
+     "ultima": "2026-11-04",
+     "feitas": 2,
+     "programadas": 0
     },
     "herbicida": {
      "ultima": "2026-10-23",
@@ -502,12 +667,17 @@ window.APP_SITE = {
      "programadas": 0
     },
     "nutricao": {
-     "ultima": "2026-10-24",
-     "feitas": 2,
+     "ultima": "2026-11-18",
+     "feitas": 3,
      "programadas": 0
     },
     "fungicida": {
-     "ultima": "2026-10-29",
+     "ultima": "2026-11-14",
+     "feitas": 2,
+     "programadas": 0
+    },
+    "inseticida": {
+     "ultima": "2026-11-14",
      "feitas": 1,
      "programadas": 0
     }
@@ -523,9 +693,9 @@ window.APP_SITE = {
    "populacaoOficial": "180 a 240 mil pl/ha — BA Oeste irrigado (microrregião 405), Brasmax",
    "aplicacoes": {
     "microbiologico": {
-     "ultima": "2026-10-03",
-     "feitas": 1,
-     "programadas": 1
+     "ultima": "2026-11-04",
+     "feitas": 2,
+     "programadas": 0
     },
     "herbicida": {
      "ultima": "2026-10-22",
@@ -535,10 +705,15 @@ window.APP_SITE = {
     "nutricao": {
      "ultima": "2026-10-25",
      "feitas": 2,
-     "programadas": 0
+     "programadas": 1
     },
     "fungicida": {
-     "ultima": "2026-10-29",
+     "ultima": "2026-11-14",
+     "feitas": 2,
+     "programadas": 0
+    },
+    "inseticida": {
+     "ultima": "2026-11-14",
      "feitas": 1,
      "programadas": 0
     }
@@ -554,9 +729,9 @@ window.APP_SITE = {
    "populacaoOficial": "180 a 240 mil pl/ha — BA Oeste irrigado (microrregião 405), Brasmax",
    "aplicacoes": {
     "microbiologico": {
-     "ultima": "2026-10-02",
-     "feitas": 1,
-     "programadas": 1
+     "ultima": "2026-11-04",
+     "feitas": 2,
+     "programadas": 0
     },
     "herbicida": {
      "ultima": "2026-10-30",
@@ -566,10 +741,15 @@ window.APP_SITE = {
     "nutricao": {
      "ultima": "2026-10-24",
      "feitas": 2,
-     "programadas": 0
+     "programadas": 1
     },
     "fungicida": {
-     "ultima": "2026-10-29",
+     "ultima": "2026-11-14",
+     "feitas": 2,
+     "programadas": 0
+    },
+    "inseticida": {
+     "ultima": "2026-11-14",
      "feitas": 1,
      "programadas": 0
     }
@@ -585,22 +765,27 @@ window.APP_SITE = {
    "populacaoOficial": "180 a 240 mil pl/ha — BA Oeste irrigado (microrregião 405), Brasmax",
    "aplicacoes": {
     "microbiologico": {
-     "ultima": "2026-10-01",
-     "feitas": 1,
-     "programadas": 1
+     "ultima": "2026-11-04",
+     "feitas": 2,
+     "programadas": 0
     },
     "herbicida": {
-     "ultima": "2026-10-22",
-     "feitas": 3,
-     "programadas": 1
+     "ultima": "2026-11-04",
+     "feitas": 4,
+     "programadas": 0
     },
     "nutricao": {
      "ultima": "2026-10-27",
      "feitas": 2,
-     "programadas": 0
+     "programadas": 1
     },
     "fungicida": {
-     "ultima": "2026-10-29",
+     "ultima": "2026-11-14",
+     "feitas": 2,
+     "programadas": 0
+    },
+    "inseticida": {
+     "ultima": "2026-11-14",
      "feitas": 1,
      "programadas": 0
     }
@@ -616,22 +801,27 @@ window.APP_SITE = {
    "populacaoOficial": "180 a 240 mil pl/ha — BA Oeste irrigado (microrregião 405), Brasmax",
    "aplicacoes": {
     "microbiologico": {
-     "ultima": "2026-10-01",
-     "feitas": 1,
-     "programadas": 1
+     "ultima": "2026-11-04",
+     "feitas": 2,
+     "programadas": 0
     },
     "herbicida": {
-     "ultima": "2026-10-22",
-     "feitas": 3,
-     "programadas": 1
+     "ultima": "2026-11-04",
+     "feitas": 4,
+     "programadas": 0
     },
     "nutricao": {
      "ultima": "2026-10-27",
      "feitas": 2,
-     "programadas": 0
+     "programadas": 1
     },
     "fungicida": {
-     "ultima": "2026-10-29",
+     "ultima": "2026-11-13",
+     "feitas": 2,
+     "programadas": 0
+    },
+    "inseticida": {
+     "ultima": "2026-11-13",
      "feitas": 1,
      "programadas": 0
     }
@@ -647,9 +837,9 @@ window.APP_SITE = {
    "populacaoOficial": "180 a 240 mil pl/ha — BA Oeste irrigado (microrregião 405), Brasmax",
    "aplicacoes": {
     "microbiologico": {
-     "ultima": "2026-09-30",
-     "feitas": 1,
-     "programadas": 1
+     "ultima": "2026-11-04",
+     "feitas": 2,
+     "programadas": 0
     },
     "herbicida": {
      "ultima": "2026-11-02",
@@ -659,10 +849,15 @@ window.APP_SITE = {
     "nutricao": {
      "ultima": "2026-10-23",
      "feitas": 2,
-     "programadas": 0
+     "programadas": 1
     },
     "fungicida": {
-     "ultima": "2026-10-29",
+     "ultima": "2026-11-13",
+     "feitas": 2,
+     "programadas": 0
+    },
+    "inseticida": {
+     "ultima": "2026-11-13",
      "feitas": 1,
      "programadas": 0
     }
@@ -678,9 +873,9 @@ window.APP_SITE = {
    "populacaoOficial": "180 a 240 mil pl/ha — BA Oeste irrigado (microrregião 405), Brasmax",
    "aplicacoes": {
     "microbiologico": {
-     "ultima": "2026-09-30",
-     "feitas": 1,
-     "programadas": 1
+     "ultima": "2026-11-04",
+     "feitas": 2,
+     "programadas": 0
     },
     "herbicida": {
      "ultima": "2026-11-03",
@@ -690,10 +885,15 @@ window.APP_SITE = {
     "nutricao": {
      "ultima": "2026-10-24",
      "feitas": 2,
-     "programadas": 0
+     "programadas": 1
     },
     "fungicida": {
-     "ultima": "2026-10-29",
+     "ultima": "2026-11-13",
+     "feitas": 2,
+     "programadas": 0
+    },
+    "inseticida": {
+     "ultima": "2026-11-13",
      "feitas": 1,
      "programadas": 0
     }
@@ -709,22 +909,27 @@ window.APP_SITE = {
    "populacaoOficial": "180 a 240 mil pl/ha — BA Oeste irrigado (microrregião 405), Brasmax",
    "aplicacoes": {
     "microbiologico": {
-     "ultima": "2026-09-30",
-     "feitas": 1,
-     "programadas": 1
+     "ultima": "2026-11-04",
+     "feitas": 2,
+     "programadas": 0
     },
     "herbicida": {
-     "ultima": "2026-10-22",
-     "feitas": 3,
+     "ultima": "2026-11-04",
+     "feitas": 4,
      "programadas": 0
     },
     "nutricao": {
      "ultima": "2026-10-27",
      "feitas": 2,
-     "programadas": 0
+     "programadas": 1
     },
     "fungicida": {
-     "ultima": "2026-10-28",
+     "ultima": "2026-11-12",
+     "feitas": 2,
+     "programadas": 0
+    },
+    "inseticida": {
+     "ultima": "2026-11-12",
      "feitas": 1,
      "programadas": 0
     }
@@ -740,23 +945,28 @@ window.APP_SITE = {
    "populacaoOficial": "180 a 240 mil pl/ha — BA Oeste irrigado (microrregião 405), Brasmax",
    "aplicacoes": {
     "microbiologico": {
-     "ultima": "2026-09-29",
-     "feitas": 1,
-     "programadas": 1
+     "ultima": "2026-11-04",
+     "feitas": 2,
+     "programadas": 0
     },
     "herbicida": {
-     "ultima": "2026-10-23",
-     "feitas": 3,
+     "ultima": "2026-11-05",
+     "feitas": 4,
      "programadas": 0
     },
     "nutricao": {
      "ultima": "2026-10-27",
      "feitas": 2,
-     "programadas": 0
+     "programadas": 1
     },
     "fungicida": {
-     "ultima": "2026-10-23",
-     "feitas": 1,
+     "ultima": "2026-11-18",
+     "feitas": 3,
+     "programadas": 0
+    },
+    "inseticida": {
+     "ultima": "2026-11-18",
+     "feitas": 2,
      "programadas": 0
     }
    }
@@ -771,23 +981,28 @@ window.APP_SITE = {
    "populacaoOficial": "180 a 240 mil pl/ha — BA Oeste irrigado (microrregião 405), Brasmax",
    "aplicacoes": {
     "microbiologico": {
-     "ultima": "2026-09-28",
-     "feitas": 1,
-     "programadas": 1
+     "ultima": "2026-11-04",
+     "feitas": 2,
+     "programadas": 0
     },
     "herbicida": {
-     "ultima": "2026-10-29",
-     "feitas": 4,
+     "ultima": "2026-11-07",
+     "feitas": 5,
      "programadas": 0
     },
     "nutricao": {
      "ultima": "2026-10-27",
      "feitas": 2,
-     "programadas": 0
+     "programadas": 1
     },
     "fungicida": {
-     "ultima": "2026-10-23",
-     "feitas": 1,
+     "ultima": "2026-11-18",
+     "feitas": 3,
+     "programadas": 0
+    },
+    "inseticida": {
+     "ultima": "2026-11-18",
+     "feitas": 2,
      "programadas": 0
     }
    }
