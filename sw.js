@@ -1,6 +1,6 @@
 // Service worker: deixa o app abrir sem sinal e guarda as fotos já vistas.
 // Ao mudar arquivos do app, aumente a VERSAO para os celulares pegarem a atualização.
-const VERSAO = "mon-v4";
+const VERSAO = "mon-v5";
 const CDN = "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.min.js";
 const LEAFLET = ["https://unpkg.com/leaflet@1.9.4/dist/leaflet.js", "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"];
 const BASE = ["./", "index.html", "css/app.css", "js/app.js", "js/local.js", "config.js",
